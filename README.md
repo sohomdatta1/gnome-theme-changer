@@ -1,4 +1,4 @@
-# libadwaita-theme-changer
+# gnome-theme-changer
 
 Theme changer for Gnome applications
 
