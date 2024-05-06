@@ -17,6 +17,8 @@ import (
 
 var THEME_PATH_TEMPLATES = []string{`/usr/share/themes`, `$HOME/.themes`, `$HOME/.local/share/themes`}
 
+var NIXOS_THEME_PATH_TEMPLATES = []string{`$HOME/.themes`, `$HOME/.local/share/themes`}
+
 var LOCAL_CONFIG_PATH_TEMPLATE string = `$HOME/.config`
 
 var REQUIRED_ASSETS = []string{"gtk-3.0/gtk.css", "gtk-3.0/gtk-dark.css", "gtk-4.0/gtk.css", "gtk-4.0/gtk-dark.css"}
@@ -152,7 +154,7 @@ func unsetGNOMETheme() {
 	gsettings_proc := exec.Command("gsettings", "reset", "org.gnome.desktop.interface", "gtk-theme")
 	gsettings_proc.Run()
 	gsettings_proc.Wait()
-	// https://gitlab.gnome.org/GNOME/libadwaita/-/blob/main/src/adw-style-manager.c#L258
+	// https://gitlab.gnome.org/GNOME/libadwaita/-/blob/main/src/adw-style-manager.c#L256
 	os.WriteFile(path.Join(substEnvVar(`HOME`, LOCAL_CONFIG_PATH_TEMPLATE), "gtk-theme-name"), []byte("Adwaita-empty"), 0644)
 }
 
@@ -184,6 +186,11 @@ func initializeThemeMapAndList() (map[string]int, []string) {
 
 }
 
+func isNixOS() bool {
+	_, err := os.Stat("/etc/nixos/configuration.nix")
+	return err == nil
+}
+
 func MaybeSetGnomeTheme(all_theme_entries []string, theme_map map[string]int, result string) {
 	index := slices.IndexFunc(all_theme_entries, func(elem string) bool { return elem == result })
 	if result == `Adwaita-empty` {
@@ -197,11 +204,17 @@ func MaybeSetGnomeTheme(all_theme_entries []string, theme_map map[string]int, re
 		return
 	}
 
+	THEME_PATH_TEMPLATES_TO_SET := THEME_PATH_TEMPLATES
+
+	if isNixOS() {
+		THEME_PATH_TEMPLATES_TO_SET = NIXOS_THEME_PATH_TEMPLATES
+	}
+
 	if index == len(all_theme_entries)-1 {
 		unsetGNOMETheme()
 	} else {
 		unsetGNOMETheme()
-		setGNOMETheme(all_theme_entries[index], substEnvVar(`HOME`, THEME_PATH_TEMPLATES[theme_map[all_theme_entries[index]]]))
+		setGNOMETheme(all_theme_entries[index], substEnvVar(`HOME`, THEME_PATH_TEMPLATES_TO_SET[theme_map[all_theme_entries[index]]]))
 	}
 }
 
