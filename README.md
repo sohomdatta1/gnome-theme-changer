@@ -7,6 +7,12 @@ Theme changer for Gnome applications
 > **Warning**
 > Use this script at your own risk, This method of changing themes is at best a hack and is not supported by GNOME Developer community. The GNOME Foundation (and for that matter, anyone besides you) is/are not responsible for fixing any theming issues that may arise from using this tool.
 
+## Install
+
+```sh
+go install github.com/sohomdatta1/gnome-theme-changer@latest
+```
+
 ## Usage
 
 To use the script you, can run `gnome-theme-changer`, it will pop up a menu of themes that can be used both for gtk-3.0 and gtk-4.0.
@@ -28,7 +34,12 @@ git clone https://github.com/sohomdatta1/gnome-theme-changer.git
 And then run:
 
 ```sh
-make -C gnome-theme-changer
+go build .
+```
+
+You can then run the binary with:
+```sh
+./gnome-theme-changer
 ```
 
 ## Additional info
