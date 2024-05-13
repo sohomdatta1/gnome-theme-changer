@@ -132,7 +132,7 @@ func getGNOMETheme() string {
 		theme_name, err = gsettings_proc.Output()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "gnome-theme-changer: unable to get current theme: %v\n", err)
-			os.Exit(-1)
+			theme_name = []byte("Adwaita-empty") // Default theme, we should never reach here
 		}
 		theme_name = theme_name[:len(theme_name)-1]
 
@@ -256,7 +256,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "gnome-theme-changer"
 	app.Usage = "Change your GNOME theme"
-	app.Version = "0.1.1"
+	app.Version = "0.1.3"
 	app.Authors = []*cli.Author{
 		{Name: "Sohom Datta",
 			Email: "sohomdatta1+gnome-theme-changer@gmail.com",
