@@ -58,7 +58,7 @@ func IsGTKTheme(dir fs.DirEntry, baseDir string) bool {
 	})
 
 	if err != nil {
-		fmt.Printf("gnome-theme-changer: unable to access %s: %s", dir.Name(), err)
+		fmt.Fprintf(os.Stderr, "gnome-theme-changer: unable to access %s: %s", dir.Name(), err)
 	}
 
 	if c >= len(REQUIRED_ASSETS) {
@@ -93,14 +93,14 @@ func linkAllPartsOfTheme(theme_name string, base_dir string, theme_type string) 
 	if _, err := os.Stat(asset_dir); os.IsNotExist(err) {
 		err := os.Mkdir(asset_dir, 0755)
 		if err != nil {
-			fmt.Printf("gnome-theme-changer: unable to create gtk-4.0 directory: %v\n", err)
+			fmt.Fprintf(os.Stderr, "gnome-theme-changer: unable to create gtk-4.0 directory: %v\n", err)
 		}
 	}
 
 	all_assets, err := os.ReadDir(path.Join(base_dir, theme_name, theme_type))
 
 	if err != nil {
-		fmt.Printf("gnome-theme-changer: unable to access %s: %v", path.Join(base_dir, theme_name, theme_type), err)
+		fmt.Fprintf(os.Stderr, "gnome-theme-changer: unable to access %s: %v", path.Join(base_dir, theme_name, theme_type), err)
 	}
 
 	for _, asset := range all_assets {
@@ -111,14 +111,14 @@ func linkAllPartsOfTheme(theme_name string, base_dir string, theme_type string) 
 		}
 		err := os.Symlink(assets_path, gtk_asset_path)
 		if err != nil {
-			fmt.Printf("gnome-theme-changer: unable to link: %v\n", err)
+			fmt.Fprintf(os.Stderr, "gnome-theme-changer: unable to link: %v\n", err)
 		}
 	}
 
 	if _, err := os.Stat(path.Join(substEnvVar(`HOME`, LOCAL_CONFIG_PATH_TEMPLATE), theme_type, `assets`)); os.IsNotExist(err) {
 		err := os.Mkdir(path.Join(substEnvVar(`HOME`, LOCAL_CONFIG_PATH_TEMPLATE), theme_type, `assets`), 0755)
 		if err != nil {
-			fmt.Printf("gnome-theme-changer: unable to create gtk-4.0 directory: %v\n", err)
+			fmt.Fprintf(os.Stderr, "gnome-theme-changer: unable to create gtk-4.0 directory: %v\n", err)
 		}
 	}
 }
@@ -126,7 +126,16 @@ func linkAllPartsOfTheme(theme_name string, base_dir string, theme_type string) 
 func getGNOMETheme() string {
 	theme_name, err := os.ReadFile(path.Join(substEnvVar(`HOME`, LOCAL_CONFIG_PATH_TEMPLATE), "gtk-theme-name"))
 	if err != nil {
-		fmt.Printf("gnome-theme-changer: unable to read gtk-theme-name: %v\n", err)
+		fmt.Fprintf(os.Stderr, "gnome-theme-changer: unable to read gtk-theme-name: %v\n", err)
+		fmt.Fprintln(os.Stderr, "This probably means that the theme has not been set using this tool, falling back on `gsettings get org.gnome.desktop.interface gtk-theme`")
+		gsettings_proc := exec.Command("gsettings", "get", "org.gnome.desktop.interface", "gtk-theme")
+		theme_name, err = gsettings_proc.Output()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "gnome-theme-changer: unable to get current theme: %v\n", err)
+			os.Exit(-1)
+		}
+		theme_name = theme_name[:len(theme_name)-1]
+
 	}
 	return string(theme_name[:])
 }
@@ -247,7 +256,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "gnome-theme-changer"
 	app.Usage = "Change your GNOME theme"
-	app.Version = "0.1.0"
+	app.Version = "0.1.1"
 	app.Authors = []*cli.Author{
 		{Name: "Sohom Datta",
 			Email: "sohomdatta1+gnome-theme-changer@gmail.com",
