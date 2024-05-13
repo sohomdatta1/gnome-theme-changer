@@ -8,8 +8,3 @@ goos: linux
 goarch: amd64
 
 binary: gnome-theme-manager
-
-# (Optional) ldflags generated dynamically in the workflow, and set as the `evaluated-envs` input variables in the workflow.
-ldflags:
-  - "-X main.Commit={{ .Env.COMMIT }}"
-  - "-X main.CommitDate={{ .Env.COMMIT_DATE }}"
