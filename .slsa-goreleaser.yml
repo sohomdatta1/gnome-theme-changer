@@ -1,0 +1,15 @@
+# Version for this file.
+version: 1
+
+# The OS to compile for. `GOOS` env variable will be set to this value.
+goos: linux
+
+# The architecture to compile for. `GOARCH` env variable will be set to this value.
+goarch: amd64
+
+binary: gnome-theme-manager
+
+# (Optional) ldflags generated dynamically in the workflow, and set as the `evaluated-envs` input variables in the workflow.
+ldflags:
+  - "-X main.Commit={{ .Env.COMMIT }}"
+  - "-X main.CommitDate={{ .Env.COMMIT_DATE }}"
